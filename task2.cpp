@@ -3,7 +3,9 @@
 #include <iostream>
 #include <string>
 
-std::size_t CountEntries(std::vector<std::string> &contacts, std::string &searchStr)
+enum operation { FIND, ADD };
+
+std::size_t CountEntries(std::vector<std::string> &contacts, std::string &searchStr, operation opType = FIND)
 {
 	std::size_t matches = 0;
 	std::size_t foundPos;
@@ -13,7 +15,17 @@ std::size_t CountEntries(std::vector<std::string> &contacts, std::string &search
 		foundPos = names.find(searchStr);
 		if (foundPos != std::string::npos)
 		{
-			matches++;
+			if (opType == ADD)
+			{
+				if (names.length() == searchStr.length())
+				{
+					matches++;
+				}
+			}
+			else
+			{
+				matches++;
+			}
 		}
 	}
 
@@ -30,7 +42,7 @@ int main()
 
 	while (true)
 	{
-		std::cout << "\nChoose an operation to do:\n1. Add new contact\n2. Look-up existent contacts\n";
+		std::cout << "\nChoose an operation to do:\n1. Add new contact\n2. Look-up existent contacts\n3. Print the whole vector\n";
 		std::cin>> input;
 
 		switch (input)
@@ -50,7 +62,7 @@ int main()
 				// Переводим предложение в lowercase
 				std::transform(contact_name.begin(), contact_name.end(), contact_name.begin(), ::tolower);
 
-				matches = CountEntries(contacts, contact_name);
+				matches = CountEntries(contacts, contact_name, ADD);
 
 				if (matches == 0)
 				{
@@ -78,7 +90,18 @@ int main()
 				
 				searchStr.clear();
 				break;
+			
+			case 3:
+				std::cout << "--------------" << std::endl;
+				for (auto &names : contacts)
+				{
+					std::cout << names << std::endl;
+				}
+				std::cout << "--------------" << std::endl;
+				break;
 			}
+
+
 	}
 
 	return 0;
