@@ -55,8 +55,7 @@ long int encrypt(long int c, long int &exponent, long int &modulePQ)
 {
     long int current, result;
 
-    // Нормализация
-    current = c - 97;
+    current = c - 96;
     result = 1;
 
     for (long int i = 0; i < exponent; i++)
@@ -65,30 +64,29 @@ long int encrypt(long int c, long int &exponent, long int &modulePQ)
         result = result % modulePQ;
     }
 
-    return result;
+    return result + 96;
 }
 
 long int decrypt(long int c, long int &numberD, long int &modulePQ)
 {
     long int current, result;
 
-    current = c;
+    current = c - 96;
     result = 1;
 
     for (long int i = 0; i < numberD; i++)
     {
         result = result * current;
-        result = result % numberD;
+        result = result % modulePQ;
     }
 
-    // +97, чтобы преобразовать число в char
-    return result + 97;
+    return result + 96;
 }
 
 int main()
 {
-	vector<long int> encryptedChars;
-	vector<long int> decryptedChars;
+	vector<double> encryptedChars;
+	vector<double> decryptedChars;
 	string text;
 	string key;
 
@@ -149,44 +147,40 @@ int main()
 	cout << "Private key pair: {Mod = [" << modulePQ << "] | D = [" << numberD << "]" << endl;
 
 	// Шифруем каждый символ текста
-	cout << "Test: ";
 	for (long int i = 0; i < text.length(); i++)
 	{
-	    cout << int(text[i]) << " ";
-	    // encryptedChars.push_back(encrypt(text[i], exponent, modulePQ));
-	    double encryptedChar = pow(int(text[i]) - 97, exponent);
-	    encryptedChar = fmod(encryptedChar, modulePQ);
-
-	    encryptedChars.push_back(encryptedChar);
+        encryptedChars.push_back(encrypt(text[i], exponent, modulePQ));
 	}
 
-	cout << endl;
-
-	// Выводим зашифрованный текст
+	// Выводим зашифрованный текст и сохраняем в файл
+    ofstream encryptedTextFile("out_encrypted.txt");
 	cout << "Encrypted text: ";
 	for (auto i = encryptedChars.begin(); i != encryptedChars.end(); i++)
     {
-        cout << *i << " ";
+        cout << char(*i);
+        encryptedTextFile << char(*i);
     }
+
+    encryptedTextFile.close();
 
     cout << endl;
 
 	// Расшифровываем обратно
 	for (long int i = 0; i < encryptedChars.size(); i++)
 	{
-	    // decryptedChars.push_back(decrypt(int(encryptedChars[i]), numberD, modulePQ));
-	    double originalChar = pow(encryptedChars[i], numberD);
-	    originalChar = fmod(originalChar, modulePQ) + 97;
-
-	    decryptedChars.push_back(originalChar);
+        decryptedChars.push_back(decrypt(encryptedChars[i], numberD, modulePQ));
 	}
 
+    // Выводим расшифрованный текст и сохраняем в файл
+    ofstream decryptedTextFile("out_decrypted.txt");
     cout << "Decrypted text: ";
 	for (auto i = decryptedChars.begin(); i != decryptedChars.end(); i++)
 	{
-	    cout << char(*i) << " ";
+	    cout << char(*i);
+        decryptedTextFile << char(*i);
 	}
 
+    decryptedTextFile.close();
 	cout << endl;
 
     return 0;
