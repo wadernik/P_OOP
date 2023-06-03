@@ -1,5 +1,7 @@
 #include <fstream>
-#include <bits/stdc++.h>
+#include <iostream>
+#include <sstream>
+#include <vector>
 
 using namespace std;
 
@@ -19,43 +21,60 @@ long mod(int a, int b)
 /**
  * Убираем все лишние пробелы и преобразуем строку к верхнему регистру
  */
-void toUppercase(string &line)
+void toUppercase(string& line)
 {
-    for_each(line.begin(), line.end(), [](char &c)
-    {
-        if (c != ' ')
-        {
-            // std::toupper()
-            c = toupper(c);
-        }
-    });
+	for (char& c : line)
+	{
+		if (c != ' ')
+		{
+			c = toupper(c);
+		}
+	}
 }
 
 /**
  * Для упрощения, метод работает только с одной строкой за раз
  * Поэтому если надо обработать несколько строк, можно в цикле вызвать функцию несколько раз.
  */
-string Encrypt(string &line, string &key)
+string Encrypt(string& line, string& key)
 {
 	string encryptedResult = "";
+	
+	int keyLength = key.length();
+	int keyIterator = 0;
 
 	for (int i = 0; i < line.length(); i++)
-    {
-        // Применяем трансформацию для каждого чара отдельно
-        encryptedResult += char(mod(int(line[i] - 65 + key[i] - 65), 26) + 65);
-    }
+	{
+		// Применяем трансформацию для каждого чара отдельно
+		encryptedResult += char(mod(int(line[i] - 65 + key[keyIterator] - 65), 26) + 65);
+
+		keyIterator++;
+
+		if (keyIterator >= keyLength) {
+			keyIterator = 0;
+		}
+	}
 
 	return encryptedResult;
 }
 
-string Decrypt(string &line, string &key)
+string Decrypt(string& line, string& key)
 {
 	string decryptedResult = "";
 
+	int keyLength = key.length();
+	int keyIterator = 0;
+
 	for (int i = 0; i < line.length(); i++)
-    {
-        decryptedResult += char(mod(int((line[i] - 65) - (key[i] - 65)), 26) + 65);
-    }
+	{
+		decryptedResult += char(mod(int((line[i] - 65) - (key[keyIterator] - 65)), 26) + 65);
+
+		keyIterator++;
+
+		if (keyIterator >= keyLength) {
+			keyIterator = 0;
+		}
+	}
 
 	return decryptedResult;
 }
@@ -67,7 +86,7 @@ int main()
 	string key;
 
 	// Читаем текст из файла и складывает в контейнер все строки
-	ifstream textFile ("input.txt");
+	ifstream textFile("input.txt");
 	if (textFile.is_open())
 	{
 		while (getline(textFile, textLine))
@@ -85,14 +104,14 @@ int main()
 	}
 
 	// Читаем ключ из файла. Считается, что ключ - текст в одну строку.
-	ifstream keyFile ("key.txt");
+	ifstream keyFile("key.txt");
 	if (keyFile.is_open())
 	{
 		getline(keyFile, key);
 		keyFile.close();
 
 		// Дебаг
-        cout << "Key: " << key << endl;
+		cout << "Key: " << key << endl;
 	}
 
 	if (linesToEncrypt.empty() || key.empty())
@@ -108,21 +127,21 @@ int main()
 	vector<string> decryptedLines;
 	for (vector<string>::iterator i = linesToEncrypt.begin(); i != linesToEncrypt.end(); i++)
 	{
-	    string line = *i;
-	    toUppercase(line);
-	    toUppercase(key);
+		string line = *i;
+		toUppercase(line);
+		toUppercase(key);
 
 		string encryptedLine = Encrypt(line, key);
 		encryptedLines.push_back(encryptedLine);
 
 		// Дебаг
-        cout << "Encrypted: " << encryptedLine << endl;
+		cout << "Encrypted: " << encryptedLine << endl;
 
 		string decryptedLine = Decrypt(encryptedLine, key);
 		decryptedLines.push_back(decryptedLine);
 
 		// Дебаг
-        cout << "Decrypted: " << decryptedLine << endl;
+		cout << "Decrypted: " << decryptedLine << endl;
 
 		encryptedLine.clear();
 		decryptedLine.clear();
@@ -149,5 +168,5 @@ int main()
 
 	DecodedText.close();
 
-    return 0;
+	return 0;
 }
